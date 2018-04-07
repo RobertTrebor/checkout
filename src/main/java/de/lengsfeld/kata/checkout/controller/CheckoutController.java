@@ -6,7 +6,6 @@ import de.lengsfeld.kata.checkout.model.Purchase;
 import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,11 +21,6 @@ public class CheckoutController {
     @Inject
     private SpecialDealsProducer specialDealsProducer;
 
-
-    @PostConstruct
-    public void init() {
-        //specialDeals = specialDealsProducer.getSpecialDeals();
-    }
 
     public void scanItem(Item item) {
         Map<Item, Integer> scannedItems = checkoutForm.getScannedItems();

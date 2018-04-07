@@ -9,14 +9,14 @@ import java.util.List;
 @Entity
 public class Purchase {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private long id;
 
     @Getter
     @Setter
-    @Column(name = "PURCHASE_LINES")
+    @OneToMany
     private List<PurchaseLine> purchaseLines;
 
 }

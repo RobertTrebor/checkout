@@ -76,13 +76,11 @@ public class CheckoutControllerTest {
 
     @Test
     public void scanItem() {
-        checkoutController.init();
         checkoutController.scanItem(itemWithSpecialDeal);
     }
 
     @Test
     public void purchaseCompleted_One() {
-        checkoutController.init();
         checkoutController.scanItem(itemWithSpecialDeal);
         Map<Item, Integer> scannedItems = checkoutForm.getScannedItems();
         assertNotNull(scannedItems);
@@ -195,7 +193,6 @@ public class CheckoutControllerTest {
     }
 
     private void scanSomeItems(int numberItemsWithSpecialDeal, int numberItemsWithoutSpecialDeal) {
-        checkoutController.init();
         for (int i = 0; i < numberItemsWithSpecialDeal; i++) {
             checkoutController.scanItem(itemWithSpecialDeal);
         }

@@ -9,24 +9,24 @@ import java.math.BigDecimal;
 @Entity
 public class SpecialDeal {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private long id;
 
     @Getter
     @Setter
-    @Column(name = "ITEM")
+    @OneToOne
     private Item item;
 
     @Getter
     @Setter
-    @Column(name = "QUANTITY")
+    @Column
     private int quantity;
 
     @Getter
     @Setter
-    @Column(name = "SPECIAL_PRICE")
+    @Column
     private BigDecimal specialPrice;
 
 }

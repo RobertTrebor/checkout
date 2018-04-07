@@ -3,7 +3,7 @@ package de.lengsfeld.kata.checkout.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -11,15 +11,24 @@ import java.util.Objects;
 public class Item {
 
     @Getter
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private String id;
+
+    @Getter
     @Setter
+    @Column
     private String itemSku;
 
     @Getter
     @Setter
+    @Column
     private String name;
 
     @Getter
     @Setter
+    @Column
     private BigDecimal standardPrice;
 
     @Override
