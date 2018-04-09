@@ -9,10 +9,7 @@ import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("checkoutService")
 public class CheckoutService {
@@ -24,7 +21,7 @@ public class CheckoutService {
     @Autowired
     private ItemRepository itemRepository;
 
-    private Map<Item, Integer> scannedItems;
+    private Map<Item, Integer> scannedItems = new HashMap<>();
 
     public Map<Item, Integer> scanItem(Item item) {
         if (scannedItems.containsKey(item)) {
