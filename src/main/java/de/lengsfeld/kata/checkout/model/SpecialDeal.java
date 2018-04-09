@@ -29,4 +29,13 @@ public class SpecialDeal {
     @Column
     private BigDecimal specialPrice;
 
+    public SpecialDeal() {
+    }
+
+    public SpecialDeal(Item item, int quantity, BigDecimal specialPrice) {
+        this.item = item;
+        this.quantity = quantity;
+        this.specialPrice = specialPrice;
+    }
+
 }

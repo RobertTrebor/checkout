@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 @Entity
 public class Item {
@@ -13,8 +12,7 @@ public class Item {
     @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private String id;
+    private long id;
 
     @Getter
     @Setter
@@ -31,19 +29,18 @@ public class Item {
     @Column
     private BigDecimal standardPrice;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        Item item = (Item) o;
-        return Objects.equals(itemSku, item.itemSku) &&
-                Objects.equals(name, item.name) &&
-                Objects.equals(standardPrice, item.standardPrice);
+    public Item() {
     }
 
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(itemSku, name, standardPrice);
+    public Item(String itemSku, BigDecimal standardPrice) {
+        this.itemSku = itemSku;
+        this.standardPrice = standardPrice;
     }
+
+    public Item(String itemSku, String name, BigDecimal standardPrice) {
+        this.itemSku = itemSku;
+        this.name = name;
+        this.standardPrice = standardPrice;
+    }
+
 }

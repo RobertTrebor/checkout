@@ -25,11 +25,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CheckoutControllerTest {
 
-    private static final BigDecimal SPECIAL_PRICE = BigDecimal.valueOf(25);
-    private static final BigDecimal STANDARD_PRICE = BigDecimal.TEN;
-    private static final BigDecimal NO_SPECIALS_PRICE = BigDecimal.valueOf(20);
     private static final String SKU_SPECIALS = "1SKU";
+    private static final BigDecimal STANDARD_PRICE = BigDecimal.TEN;
+    private static final BigDecimal SPECIAL_PRICE = BigDecimal.valueOf(25);
+    private static final Integer QUANTITY_REQUIRED = 3;
+
     private static final String SKU_NO_SPECIALS = "2SKU";
+    private static final BigDecimal NO_SPECIALS_PRICE = BigDecimal.valueOf(20);
 
     @InjectMocks
     private CheckoutController checkoutController;
@@ -58,7 +60,7 @@ public class CheckoutControllerTest {
 
         specialDeal = new SpecialDeal();
         specialDeal.setItem(itemWithSpecialDeal);
-        specialDeal.setQuantity(3);
+        specialDeal.setQuantity(QUANTITY_REQUIRED);
         specialDeal.setSpecialPrice(SPECIAL_PRICE);
 
         item = new Item();
@@ -93,8 +95,8 @@ public class CheckoutControllerTest {
         int NUMBER_ITEMS_STANDARD = 0;
         int NUMBER_DISTICT_ITEMS = 1;
 
-        testPurchaseCompleted(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD, NUMBER_DISTICT_ITEMS);
-
+        boolean success = testPurchaseCompleted(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD, NUMBER_DISTICT_ITEMS);
+        assertTrue(success);
         assertTrue(purchaseLineContainsItemWithSpecialDeal);
         assertTrue(specialDealAppliedAtLeastOnce);
         assertFalse(standardPriceAppliedAtLeastOnce);
@@ -120,16 +122,16 @@ public class CheckoutControllerTest {
         int NUMBER_ITEMS_SPECIAL_DEAL = 3;
         int NUMBER_ITEMS_STANDARD = 6;
         int NUMBER_DISTICT_ITEMS = 2;
-        testPurchaseCompleted(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD, NUMBER_DISTICT_ITEMS);
-
+        boolean success = testPurchaseCompleted(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD, NUMBER_DISTICT_ITEMS);
+        assertTrue(success);
         assertTrue(purchaseLineContainsItemWithSpecialDeal);
         assertTrue(specialDealAppliedAtLeastOnce);
         assertTrue(standardPriceAppliedAtLeastOnce);
     }
 
-    private void testPurchaseCompleted(int NUMBER_ITEMS_SPECIAL_DEAL,
-                                       int NUMBER_ITEMS_STANDARD,
-                                       int NUMBER_DISTICT_ITEMS) {
+    private boolean testPurchaseCompleted(int NUMBER_ITEMS_SPECIAL_DEAL,
+                                          int NUMBER_ITEMS_STANDARD,
+                                          int NUMBER_DISTICT_ITEMS) {
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
         Purchase purchase = checkoutController.purchaseCompleted();
         assertEquals(NUMBER_DISTICT_ITEMS, purchase.getPurchaseLines().size());
@@ -154,8 +156,7 @@ public class CheckoutControllerTest {
         assertEquals(NUMBER_DISTICT_ITEMS, purchaseLines.size());
         for (PurchaseLine purchaseLine : purchaseLines) {
             assertTrue(purchaseLine.getItem().equals(item) || purchaseLine.getItem().equals(itemWithSpecialDeal));
-            specialDealAppliedAtLeastOnce = specialDealExistsAndApplies(purchaseLine);
-            if (specialDealAppliedAtLeastOnce) {
+            if (specialDealExistsAndApplies(purchaseLine)) {
                 assertEquals(NUMBER_ITEMS_SPECIAL_DEAL, purchaseLine.getQuantity());
             } else {
                 assertEquals(NUMBER_ITEMS_STANDARD, purchaseLine.getQuantity());
@@ -163,6 +164,7 @@ public class CheckoutControllerTest {
                 standardPriceAppliedAtLeastOnce = true;
             }
         }
+        return true;
     }
 
 
@@ -171,6 +173,7 @@ public class CheckoutControllerTest {
             purchaseLineContainsItemWithSpecialDeal = true;
             if (specialDeal.getQuantity() == purchaseLine.getQuantity()) {
                 assertEquals(SPECIAL_PRICE, purchaseLine.getApplicablePrice());
+                specialDealAppliedAtLeastOnce = true;
                 return true;
             }
         }
