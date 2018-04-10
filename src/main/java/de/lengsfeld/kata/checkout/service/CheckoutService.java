@@ -9,6 +9,7 @@ import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service("checkoutService")
@@ -37,26 +38,47 @@ public class CheckoutService {
         Collection<Item> items = scannedItems.keySet();
         List<PurchaseLine> purchaseLines = new ArrayList<>();
         for (Item item : items) {
-            purchaseLines.add(getPurchaseLine(scannedItems, item));
+            purchaseLines.addAll(getPurchaseLine(scannedItems, item));
         }
         Purchase purchase = new Purchase();
         purchase.setPurchaseLines(purchaseLines);
         return purchase;
     }
 
-    protected PurchaseLine getPurchaseLine(Map<Item, Integer> scannedItems, Item item) {
+    protected List<PurchaseLine> getPurchaseLine(Map<Item, Integer> scannedItems, Item item) {
+
+        List<PurchaseLine> purchaseLines = new ArrayList<>();
         PurchaseLine purchaseLine = new PurchaseLine();
         purchaseLine.setItem(item);
         int quantity = scannedItems.get(item);
-        purchaseLine.setQuantity(quantity);
+        purchaseLine.setItem(item);
         SpecialDeal specialDeal = specialDealRepository.findSpecialDealByItem(item);
-        if (specialDeal != null) {
-            if (specialDeal.getQuantity() >= quantity) {
+        if (specialDeal == null) {
+            purchaseLine.setQuantity(quantity);
+            purchaseLine.setApplicablePrice(item.getStandardPrice().multiply(BigDecimal.valueOf(quantity)));
+            purchaseLines.add(purchaseLine);
+        } else {
+            int numberOfTimesDiscountApplied = getNumberOfTimesDiscountApplied(quantity, specialDeal.getQuantity());
+            if (numberOfTimesDiscountApplied > 0) {
+                purchaseLine.setQuantity(numberOfTimesDiscountApplied);
                 purchaseLine.setApplicablePrice(specialDeal.getSpecialPrice());
-                return purchaseLine;
+                purchaseLines.add(purchaseLine);
+            }
+            int numberOfRemainingItems = quantity - specialDeal.getQuantity() * numberOfTimesDiscountApplied;
+            if (numberOfRemainingItems > 0) {
+                PurchaseLine additionalPurchaseLine = new PurchaseLine();
+                additionalPurchaseLine.setItem(item);
+                additionalPurchaseLine.setQuantity(numberOfRemainingItems);
+                additionalPurchaseLine.setApplicablePrice(item.getStandardPrice().multiply(BigDecimal.valueOf(numberOfRemainingItems)));
+                purchaseLines.add(additionalPurchaseLine);
             }
         }
-        purchaseLine.setApplicablePrice(item.getStandardPrice());
-        return purchaseLine;
+        return purchaseLines;
+    }
+
+    private int getNumberOfTimesDiscountApplied(int quantity, int quantityRequiredForSpecial) {
+        List<PurchaseLine> purchaseLines = new ArrayList<>();
+        Float numberOfTimesDiscountApplied = quantity / Float.valueOf(quantityRequiredForSpecial);
+        return numberOfTimesDiscountApplied.intValue();
     }
 }
