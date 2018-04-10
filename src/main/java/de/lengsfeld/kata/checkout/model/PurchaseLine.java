@@ -31,5 +31,21 @@ public class PurchaseLine {
     @Column
     private BigDecimal applicablePrice;
 
+    @Transient
+    private BigDecimal totalAmount;
 
+
+    public BigDecimal getTotalAmount() {
+        return BigDecimal.valueOf(quantity).multiply(applicablePrice);
+    }
+
+    @Override
+    public String toString() {
+        return "PurchaseLine{" +
+                "id=" + id +
+                ", item=" + item +
+                ", quantity=" + quantity +
+                ", applicablePrice=" + applicablePrice +
+                '}';
+    }
 }

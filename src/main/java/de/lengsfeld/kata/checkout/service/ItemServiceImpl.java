@@ -5,7 +5,6 @@ import de.lengsfeld.kata.checkout.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("itemService")
@@ -26,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> findAll() {
-        return new ArrayList<>();
+        return itemRepository.findAll();
     }
 
 }

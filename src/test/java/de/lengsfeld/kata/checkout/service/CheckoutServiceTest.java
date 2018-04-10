@@ -44,7 +44,7 @@ public class CheckoutServiceTest {
 
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         itemWithSpecialDeal = new Item(SKU_SPECIALS, STANDARD_PRICE);
         item = new Item(SKU_NO_SPECIALS, NO_SPECIALS_PRICE);
         specialDeal = new SpecialDeal(itemWithSpecialDeal, QUANTITY_REQUIRED, SPECIAL_PRICE);
@@ -53,19 +53,32 @@ public class CheckoutServiceTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
     }
 
     @Test
-    public void scanItem() throws Exception {
+    public void scanItem() {
     }
 
     @Test
-    public void purchaseCompleted() throws Exception {
+    public void purchaseCompleted() {
     }
 
     @Test
-    public void getPurchaseLine() throws Exception {
+    public void getPurchaseLine() {
+    }
+
+    @Test
+    public void purchaseCompleted_verifyTotal() {
+        when(specialDealRepository.findSpecialDealByItem(item)).thenReturn(null);
+        when(specialDealRepository.findSpecialDealByItem(itemWithSpecialDeal)).thenReturn(specialDeal);
+        int NUMBER_ITEMS_SPECIAL_DEAL = 4;
+        int NUMBER_ITEMS_STANDARD = 6;
+        scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
+        Purchase purchase = checkoutService.purchaseCompleted();
+        assertEquals(BigDecimal.valueOf(25 + 10 + 120), purchase.getTotalAmount());
+
+
     }
 
     @Test

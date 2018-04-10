@@ -50,7 +50,16 @@ public class RestApiController {
         return new ResponseEntity<>(specialDeal, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/items", method = RequestMethod.GET)
+    @RequestMapping(value = "/items/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Item> getItem(@PathVariable("id") long id) {
+        Item item = itemsService.findById(id);
+        if (item == null) {
+            return new ResponseEntity(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(item, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/listitems", method = RequestMethod.GET)
     public ResponseEntity<List<Item>> listAllItems() {
         List<Item> items = itemsService.findAll();
         if (items.isEmpty()) {

@@ -24,6 +24,7 @@ public class CheckoutService {
 
     private Map<Item, Integer> scannedItems = new HashMap<>();
 
+
     public Map<Item, Integer> scanItem(Item item) {
         if (scannedItems.containsKey(item)) {
             Integer quantity = scannedItems.get(item);
@@ -38,47 +39,53 @@ public class CheckoutService {
         Collection<Item> items = scannedItems.keySet();
         List<PurchaseLine> purchaseLines = new ArrayList<>();
         for (Item item : items) {
-            purchaseLines.addAll(getPurchaseLine(scannedItems, item));
+            purchaseLines.addAll(getPurchaseLines(scannedItems, item));
         }
         Purchase purchase = new Purchase();
         purchase.setPurchaseLines(purchaseLines);
+        purchase.setTotalAmount(calculateTotalAmount(purchase));
+        scannedItems = new HashMap<>();
         return purchase;
     }
 
-    protected List<PurchaseLine> getPurchaseLine(Map<Item, Integer> scannedItems, Item item) {
 
+    protected List<PurchaseLine> getPurchaseLines(Map<Item, Integer> scannedItems, Item item) {
         List<PurchaseLine> purchaseLines = new ArrayList<>();
-        PurchaseLine purchaseLine = new PurchaseLine();
-        purchaseLine.setItem(item);
         int quantity = scannedItems.get(item);
-        purchaseLine.setItem(item);
         SpecialDeal specialDeal = specialDealRepository.findSpecialDealByItem(item);
-        if (specialDeal == null) {
-            purchaseLine.setQuantity(quantity);
-            purchaseLine.setApplicablePrice(item.getStandardPrice().multiply(BigDecimal.valueOf(quantity)));
-            purchaseLines.add(purchaseLine);
-        } else {
+        if (specialDeal != null) {
             int numberOfTimesDiscountApplied = getNumberOfTimesDiscountApplied(quantity, specialDeal.getQuantity());
             if (numberOfTimesDiscountApplied > 0) {
-                purchaseLine.setQuantity(numberOfTimesDiscountApplied);
-                purchaseLine.setApplicablePrice(specialDeal.getSpecialPrice());
-                purchaseLines.add(purchaseLine);
+                purchaseLines.add(getPurchaseLine(item, numberOfTimesDiscountApplied, specialDeal.getSpecialPrice()));
             }
-            int numberOfRemainingItems = quantity - specialDeal.getQuantity() * numberOfTimesDiscountApplied;
-            if (numberOfRemainingItems > 0) {
-                PurchaseLine additionalPurchaseLine = new PurchaseLine();
-                additionalPurchaseLine.setItem(item);
-                additionalPurchaseLine.setQuantity(numberOfRemainingItems);
-                additionalPurchaseLine.setApplicablePrice(item.getStandardPrice().multiply(BigDecimal.valueOf(numberOfRemainingItems)));
-                purchaseLines.add(additionalPurchaseLine);
-            }
+            quantity = quantity - specialDeal.getQuantity() * numberOfTimesDiscountApplied;
+        }
+        if (quantity > 0) {
+            purchaseLines.add(getPurchaseLine(item, quantity, item.getStandardPrice()));
         }
         return purchaseLines;
     }
 
+    private PurchaseLine getPurchaseLine(Item item, int quantity, BigDecimal price) {
+        PurchaseLine purchaseLine = new PurchaseLine();
+        purchaseLine.setItem(item);
+        purchaseLine.setQuantity(quantity);
+        purchaseLine.setApplicablePrice(price);
+        return purchaseLine;
+    }
+
     private int getNumberOfTimesDiscountApplied(int quantity, int quantityRequiredForSpecial) {
-        List<PurchaseLine> purchaseLines = new ArrayList<>();
         Float numberOfTimesDiscountApplied = quantity / Float.valueOf(quantityRequiredForSpecial);
         return numberOfTimesDiscountApplied.intValue();
     }
+
+    private BigDecimal calculateTotalAmount(Purchase purchase) {
+        List<PurchaseLine> purchaseLines = purchase.getPurchaseLines();
+        BigDecimal totalAmountForPurchase = BigDecimal.ZERO;
+        for (PurchaseLine purchaseLine : purchaseLines) {
+            totalAmountForPurchase = totalAmountForPurchase.add(purchaseLine.getTotalAmount());
+        }
+        return totalAmountForPurchase;
+    }
+
 }
