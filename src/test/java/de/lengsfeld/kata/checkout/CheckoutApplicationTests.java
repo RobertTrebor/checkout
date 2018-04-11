@@ -2,11 +2,13 @@ package de.lengsfeld.kata.checkout;
 
 import de.lengsfeld.kata.checkout.model.Item;
 import de.lengsfeld.kata.checkout.model.Purchase;
+import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 import de.lengsfeld.kata.checkout.repository.ItemRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +100,36 @@ public class CheckoutApplicationTests {
         assertEquals(BigDecimal.valueOf(25).toBigInteger(), moneyForSpecialDeals.toBigInteger());
 
         int remainingItemsNoSpecial = NUMBER_ITEMS_SPECIAL_DEAL - deals * specialDeal.getQuantity();
+        assertEquals(1, remainingItemsNoSpecial);
+
+        BigDecimal remainingMoneyOnItemsWithSpecials = BigDecimal.valueOf(remainingItemsNoSpecial).multiply(itemWithSpecialDeal.getStandardPrice());
+        assertEquals(itemWithSpecialDeal.getStandardPrice().toBigInteger(), remainingMoneyOnItemsWithSpecials.toBigInteger());
+        assertEquals(BigDecimal.TEN.toBigInteger(), remainingMoneyOnItemsWithSpecials.toBigInteger());
+
+        BigDecimal priceOfItemsWithoutSpecialDeal = BigDecimal.valueOf(NUMBER_ITEMS_STANDARD).multiply(item.getStandardPrice());
+        assertEquals(BigDecimal.valueOf(120).toBigInteger(), priceOfItemsWithoutSpecialDeal.toBigInteger());
+
+        BigDecimal expectedTotal = moneyForSpecialDeals.add(remainingMoneyOnItemsWithSpecials).add(priceOfItemsWithoutSpecialDeal);
+        scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
+        Purchase purchase = getPurchase();
+        assertNotNull(purchase);
+        System.out.println(purchase.getTotalAmount().toBigInteger().toString());
+        assertEquals(3, purchase.getPurchaseLines().size());
+        assertEquals(expectedTotal.toBigInteger(), purchase.getTotalAmount().toBigInteger());
+        assertEquals(BigInteger.valueOf(155), purchase.getTotalAmount().toBigInteger());
+    }
+
+    @Test
+    public void purchaseCompleted_verifyTotalzzzz() {
+        int NUMBER_ITEMS_SPECIAL_DEAL = 4;
+        int NUMBER_ITEMS_STANDARD = 6;
+        int deals = getNumberOfTimesDiscountApplied(NUMBER_ITEMS_SPECIAL_DEAL, specialDeal.getQuantity());
+        assertEquals(1, deals);
+        BigDecimal moneyForSpecialDeals = specialDeal.getSpecialPrice().multiply(BigDecimal.valueOf(deals));
+        assertEquals(SPECIAL_PRICE.toBigInteger(), moneyForSpecialDeals.toBigInteger());
+        assertEquals(BigDecimal.valueOf(25).toBigInteger(), moneyForSpecialDeals.toBigInteger());
+
+        int remainingItemsNoSpecial = NUMBER_ITEMS_SPECIAL_DEAL - deals * specialDeal.getQuantity();
         assertEquals(remainingItemsNoSpecial, 1);
 
         BigDecimal remainingMoneyOnItemsWithSpecials = BigDecimal.valueOf(remainingItemsNoSpecial).multiply(itemWithSpecialDeal.getStandardPrice());
@@ -112,8 +144,14 @@ public class CheckoutApplicationTests {
         Purchase purchase = getPurchase();
         assertNotNull(purchase);
         assertEquals(3, purchase.getPurchaseLines().size());
-        assertEquals(expectedTotal.toBigInteger(), purchase.getTotalAmount().toBigInteger());
+        BigDecimal totalAmountForPurchase = BigDecimal.ZERO;
+        for (PurchaseLine purchaseLine : purchase.getPurchaseLines()) {
+            totalAmountForPurchase = totalAmountForPurchase.add(purchaseLine.getTotalAmount());
+        }
+        assertEquals(totalAmountForPurchase.toBigInteger(), purchase.getTotalAmount().toBigInteger());
     }
+
+
 
     private void scanSomeItems(int numberItemsWithSpecialDeal, int numberItemsWithoutSpecialDeal) {
         for (int i = 0; i < numberItemsWithSpecialDeal; i++) {
@@ -145,6 +183,7 @@ public class CheckoutApplicationTests {
     }
 
     @Test
+    @Ignore
     public void scanItem() {
         String get = URL_LOCALHOST + "/api/scan/1";
         assertTrue(StringUtils.contains(get, URL_LOCALHOST + "/"));
@@ -188,6 +227,7 @@ public class CheckoutApplicationTests {
 
 
     private void scanItem(String id) {
+        assertTrue(id.equals("1") || id.equals("2"));
         String get = URL_LOCALHOST + "/api/scan/" + id;
         assertTrue(StringUtils.contains(get, URL_LOCALHOST + "/"));
         Map<Item, Integer> itemMap = restTemplate.getForObject(get, HashMap.class);
@@ -196,6 +236,13 @@ public class CheckoutApplicationTests {
 
     private Purchase getPurchase() {
         String get = URL_LOCALHOST + "/api/done";
+        Purchase purchase = restTemplate.getForObject(get, Purchase.class);
+        assertNotNull(purchase);
+        return purchase;
+    }
+
+    private Purchase getPurchase(String id) {
+        String get = URL_LOCALHOST + "/api/purchase/" + id;
         Purchase purchase = restTemplate.getForObject(get, Purchase.class);
         assertNotNull(purchase);
         return purchase;

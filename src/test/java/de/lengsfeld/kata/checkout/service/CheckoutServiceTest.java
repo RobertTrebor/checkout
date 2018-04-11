@@ -5,7 +5,6 @@ import de.lengsfeld.kata.checkout.model.Purchase;
 import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,21 +51,6 @@ public class CheckoutServiceTest {
         when(specialDealRepository.findSpecialDealByItem(itemWithSpecialDeal)).thenReturn(specialDeal);
     }
 
-    @After
-    public void tearDown() {
-    }
-
-    @Test
-    public void scanItem() {
-    }
-
-    @Test
-    public void purchaseCompleted() {
-    }
-
-    @Test
-    public void getPurchaseLine() {
-    }
 
     @Test
     public void purchaseCompleted_verifyTotal() {
@@ -77,8 +61,6 @@ public class CheckoutServiceTest {
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
         Purchase purchase = checkoutService.purchaseCompleted();
         assertEquals(BigDecimal.valueOf(25 + 10 + 120), purchase.getTotalAmount());
-
-
     }
 
     @Test

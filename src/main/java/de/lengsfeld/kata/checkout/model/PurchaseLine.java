@@ -31,8 +31,6 @@ public class PurchaseLine {
     @Column
     private BigDecimal applicablePrice;
 
-    @Transient
-    private BigDecimal totalAmount;
 
 
     public BigDecimal getTotalAmount() {

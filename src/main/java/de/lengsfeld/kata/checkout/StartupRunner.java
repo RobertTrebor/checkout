@@ -3,7 +3,6 @@ package de.lengsfeld.kata.checkout;
 import de.lengsfeld.kata.checkout.model.Item;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 import de.lengsfeld.kata.checkout.repository.ItemRepository;
-import de.lengsfeld.kata.checkout.repository.PurchaseRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,9 +28,6 @@ public class StartupRunner implements CommandLineRunner {
     @Autowired
     private ItemRepository itemRepository;
 
-    @Autowired
-    private PurchaseRepository purchaseRepository;
-
 
     @Override
     public void run(String... args) {
@@ -41,7 +37,6 @@ public class StartupRunner implements CommandLineRunner {
         itemRepository.save(itemWithSpecialDeal);
         Item item = new Item(SKU_NO_SPECIALS, NO_SPECIALS_PRICE);
         itemRepository.save(item);
-
 
         SpecialDeal specialDeal = new SpecialDeal(itemWithSpecialDeal, QUANTITY_REQUIRED, SPECIAL_PRICE);
         specialDealsRepository.save(specialDeal);
@@ -54,13 +49,6 @@ public class StartupRunner implements CommandLineRunner {
         for (SpecialDeal specialDeal : specialDeals) {
             log.info(specialDeal.toString());
         }
-
-        //List<Item> itemList = itemsRepository.findAll();
-        //for (Item item : itemList) {
-        //    SpecialDeal specialDeal = specialDealsRepository.findSpecialDealByItem(item);
-        //   log.info("Special deal for: " + item.getItemSku() + "is available!");
-        //}
-
     }
 
 }

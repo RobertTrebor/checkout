@@ -1,11 +1,13 @@
 package de.lengsfeld.kata.checkout.model;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
 
+@EqualsAndHashCode
 @Entity
 public class SpecialDeal {
 

@@ -6,6 +6,7 @@ import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 import de.lengsfeld.kata.checkout.service.CheckoutService;
 import de.lengsfeld.kata.checkout.service.ItemService;
+import de.lengsfeld.kata.checkout.service.PurchaseService;
 import de.lengsfeld.kata.checkout.service.SpecialDealService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,9 @@ public class RestApiController {
 
     @Autowired
     private ItemService itemsService;
+
+    @Autowired
+    private PurchaseService purchaseService;
 
     @Autowired
     private CheckoutService checkoutService;
@@ -73,6 +77,12 @@ public class RestApiController {
         Item item = itemsService.findById(id);
         Map<Item, Integer> scannedItems = checkoutService.scanItem(item);
         return new ResponseEntity<>(scannedItems, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/purchase/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Purchase> getPurchase(@PathVariable("id") long id) {
+        Purchase purchase = purchaseService.findById(id);
+        return new ResponseEntity<>(purchase, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/done", method = RequestMethod.GET)
