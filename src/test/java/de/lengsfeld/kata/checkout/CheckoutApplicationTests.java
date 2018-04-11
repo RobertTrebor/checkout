@@ -81,7 +81,7 @@ public class CheckoutApplicationTests {
 
 
     @Test
-    public void purchaseCompleted_verifyTotalx() {
+    public void purchaseCompleted_verifyTotal_Detail() {
         int NUMBER_ITEMS_SPECIAL_DEAL = 4;
         int NUMBER_ITEMS_STANDARD = 6;
         int deals = getNumberOfTimesDiscountApplied(NUMBER_ITEMS_SPECIAL_DEAL, specialDeal.getQuantity());
@@ -106,11 +106,10 @@ public class CheckoutApplicationTests {
         assertNotNull(purchase);
         assertEquals(3, purchase.getPurchaseLines().size());
         assertEquals(expectedTotal.toBigInteger(), purchase.getTotalAmount().toBigInteger());
-
     }
 
     @Test
-    public void purchaseCompleted_verifyTotalzzzz() {
+    public void purchaseCompleted_verifyTotalAmountEqualSumPurchaseLines() {
         int NUMBER_ITEMS_SPECIAL_DEAL = 4;
         int NUMBER_ITEMS_STANDARD = 6;
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);

@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("checkoutService")
 public class CheckoutService {
@@ -44,17 +47,14 @@ public class CheckoutService {
 
     public Purchase purchaseCompleted() {
         Purchase purchase = new Purchase();
-        if (scannedItems != null) {
-            Collection<Item> items = scannedItems.keySet();
-            if (!items.isEmpty()) {
-                List<PurchaseLine> purchaseLines = new ArrayList<>();
-                for (Item item : items) {
-                    purchaseLines.addAll(getPurchaseLines(item, scannedItems.get(item)));
-                }
-                purchase.setPurchaseLines(purchaseLines);
-                purchase.setTotalAmount(calculateTotalAmount(purchaseLines));
-                purchaseRepository.save(purchase);
+        if (scannedItems != null && !scannedItems.isEmpty()) {
+            List<PurchaseLine> purchaseLines = new ArrayList<>();
+            for (Map.Entry<Item, Integer> entry : scannedItems.entrySet()) {
+                purchaseLines.addAll(getPurchaseLines(entry.getKey(), entry.getValue()));
             }
+            purchase.setPurchaseLines(purchaseLines);
+            purchase.setTotalAmount(calculateTotalAmount(purchaseLines));
+            purchaseRepository.save(purchase);
             scannedItems = null;
         }
         return purchase;
