@@ -3,6 +3,7 @@ package de.lengsfeld.kata.checkout;
 import de.lengsfeld.kata.checkout.model.Item;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
 import de.lengsfeld.kata.checkout.repository.ItemRepository;
+import de.lengsfeld.kata.checkout.repository.PurchaseRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +28,9 @@ public class StartupRunner implements CommandLineRunner {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository;
 
 
     @Override

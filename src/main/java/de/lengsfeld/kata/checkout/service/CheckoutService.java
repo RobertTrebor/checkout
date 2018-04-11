@@ -4,7 +4,8 @@ import de.lengsfeld.kata.checkout.model.Item;
 import de.lengsfeld.kata.checkout.model.Purchase;
 import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
-import de.lengsfeld.kata.checkout.repository.ItemRepository;
+import de.lengsfeld.kata.checkout.repository.PurchaseLineRepository;
+import de.lengsfeld.kata.checkout.repository.PurchaseRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,10 @@ public class CheckoutService {
     private SpecialDealRepository specialDealRepository;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private PurchaseRepository purchaseRepository;
+
+    @Autowired
+    private PurchaseLineRepository purchaseLineRepository;
 
     private Map<Item, Integer> scannedItems = new HashMap<>();
 
@@ -40,10 +44,12 @@ public class CheckoutService {
         List<PurchaseLine> purchaseLines = new ArrayList<>();
         for (Item item : items) {
             purchaseLines.addAll(getPurchaseLines(scannedItems, item));
+
         }
         Purchase purchase = new Purchase();
         purchase.setPurchaseLines(purchaseLines);
         purchase.setTotalAmount(calculateTotalAmount(purchase));
+        purchaseRepository.save(purchase);
         scannedItems = new HashMap<>();
         return purchase;
     }
@@ -71,6 +77,7 @@ public class CheckoutService {
         purchaseLine.setItem(item);
         purchaseLine.setQuantity(quantity);
         purchaseLine.setApplicablePrice(price);
+        purchaseLineRepository.save(purchaseLine);
         return purchaseLine;
     }
 
