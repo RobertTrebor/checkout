@@ -8,7 +8,6 @@ import de.lengsfeld.kata.checkout.repository.ItemRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +36,7 @@ public class CheckoutApplicationTests {
     private static final int QUANTITY_REQUIRED = 3;
     private static final String SKU_NO_SPECIALS = "2SKU";
     private static final BigDecimal NO_SPECIALS_PRICE = new BigDecimal(20);
+
     final String URL_LOCALHOST = "http://localhost:8080/checkout";
 
     @Autowired
@@ -79,15 +79,6 @@ public class CheckoutApplicationTests {
         assertEquals(BigInteger.valueOf(25 + 10 + 120), purchase.getTotalAmount().toBigInteger());
     }
 
-    @Test
-    public void purchaseCompleted_verifyTotaly() {
-        int NUMBER_ITEMS_SPECIAL_DEAL = 4;
-        int NUMBER_ITEMS_STANDARD = 6;
-        scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
-        Purchase purchase = getPurchase();
-        assertNotNull(purchase);
-        assertEquals(BigInteger.valueOf(25 + 10 + 120), purchase.getTotalAmount().toBigInteger());
-    }
 
     @Test
     public void purchaseCompleted_verifyTotalx() {
@@ -113,33 +104,15 @@ public class CheckoutApplicationTests {
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
         Purchase purchase = getPurchase();
         assertNotNull(purchase);
-        System.out.println(purchase.getTotalAmount().toBigInteger().toString());
         assertEquals(3, purchase.getPurchaseLines().size());
         assertEquals(expectedTotal.toBigInteger(), purchase.getTotalAmount().toBigInteger());
-        assertEquals(BigInteger.valueOf(155), purchase.getTotalAmount().toBigInteger());
+
     }
 
     @Test
     public void purchaseCompleted_verifyTotalzzzz() {
         int NUMBER_ITEMS_SPECIAL_DEAL = 4;
         int NUMBER_ITEMS_STANDARD = 6;
-        int deals = getNumberOfTimesDiscountApplied(NUMBER_ITEMS_SPECIAL_DEAL, specialDeal.getQuantity());
-        assertEquals(1, deals);
-        BigDecimal moneyForSpecialDeals = specialDeal.getSpecialPrice().multiply(BigDecimal.valueOf(deals));
-        assertEquals(SPECIAL_PRICE.toBigInteger(), moneyForSpecialDeals.toBigInteger());
-        assertEquals(BigDecimal.valueOf(25).toBigInteger(), moneyForSpecialDeals.toBigInteger());
-
-        int remainingItemsNoSpecial = NUMBER_ITEMS_SPECIAL_DEAL - deals * specialDeal.getQuantity();
-        assertEquals(remainingItemsNoSpecial, 1);
-
-        BigDecimal remainingMoneyOnItemsWithSpecials = BigDecimal.valueOf(remainingItemsNoSpecial).multiply(itemWithSpecialDeal.getStandardPrice());
-        assertEquals(itemWithSpecialDeal.getStandardPrice().toBigInteger(), remainingMoneyOnItemsWithSpecials.toBigInteger());
-        assertEquals(BigDecimal.TEN.toBigInteger(), remainingMoneyOnItemsWithSpecials.toBigInteger());
-
-        BigDecimal priceOfItemsWithoutSpecialDeal = BigDecimal.valueOf(NUMBER_ITEMS_STANDARD).multiply(item.getStandardPrice());
-        assertEquals(BigDecimal.valueOf(120).toBigInteger(), priceOfItemsWithoutSpecialDeal.toBigInteger());
-
-        BigDecimal expectedTotal = moneyForSpecialDeals.add(remainingMoneyOnItemsWithSpecials).add(priceOfItemsWithoutSpecialDeal);
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
         Purchase purchase = getPurchase();
         assertNotNull(purchase);
@@ -151,8 +124,6 @@ public class CheckoutApplicationTests {
         assertEquals(totalAmountForPurchase.toBigInteger(), purchase.getTotalAmount().toBigInteger());
     }
 
-
-
     private void scanSomeItems(int numberItemsWithSpecialDeal, int numberItemsWithoutSpecialDeal) {
         for (int i = 0; i < numberItemsWithSpecialDeal; i++) {
             scanItem(String.valueOf(itemWithSpecialDeal.getId()));
@@ -161,7 +132,6 @@ public class CheckoutApplicationTests {
             scanItem(String.valueOf(item.getId()));
         }
     }
-
 
     @Test
     public void specialDeal() {
@@ -183,15 +153,6 @@ public class CheckoutApplicationTests {
     }
 
     @Test
-    @Ignore
-    public void scanItem() {
-        String get = URL_LOCALHOST + "/api/scan/1";
-        assertTrue(StringUtils.contains(get, URL_LOCALHOST + "/"));
-        Map<Item, Integer> itemMap = restTemplate.getForObject(get, HashMap.class);
-        assertNotNull(itemMap);
-    }
-
-    @Test
     public void item() {
         String get = URL_LOCALHOST + "/api/items/1";
         assertTrue(StringUtils.contains(get, URL_LOCALHOST + "/"));
@@ -207,6 +168,7 @@ public class CheckoutApplicationTests {
         List<Item> items = Arrays.asList(restTemplate.getForObject(get, Item[].class));
         assertNotNull(items);
     }
+
 
     private Item getItem(String id) {
         String get = URL_LOCALHOST + "/api/items/" + id;
@@ -224,7 +186,6 @@ public class CheckoutApplicationTests {
         assertEquals(QUANTITY_REQUIRED, specialDeal.getQuantity());
         return specialDeal;
     }
-
 
     private void scanItem(String id) {
         assertTrue(id.equals("1") || id.equals("2"));
@@ -248,7 +209,7 @@ public class CheckoutApplicationTests {
         return purchase;
     }
 
-    protected int getNumberOfTimesDiscountApplied(int quantity, int quantityRequiredForSpecial) {
+    private int getNumberOfTimesDiscountApplied(int quantity, int quantityRequiredForSpecial) {
         Float numberOfTimesDiscountApplied = quantity / Float.valueOf(quantityRequiredForSpecial);
         return numberOfTimesDiscountApplied.intValue();
     }

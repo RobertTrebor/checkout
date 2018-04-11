@@ -20,6 +20,7 @@ public class StartupRunner implements CommandLineRunner {
     private static final Integer QUANTITY_REQUIRED = 3;
     private static final String SKU_NO_SPECIALS = "2SKU";
     private static final BigDecimal NO_SPECIALS_PRICE = BigDecimal.valueOf(20);
+
     protected final Log log = LogFactory.getLog(getClass());
 
     @Autowired

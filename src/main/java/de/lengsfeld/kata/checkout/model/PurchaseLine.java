@@ -32,7 +32,6 @@ public class PurchaseLine {
     private BigDecimal applicablePrice;
 
 
-
     public BigDecimal getTotalAmount() {
         return BigDecimal.valueOf(quantity).multiply(applicablePrice);
     }

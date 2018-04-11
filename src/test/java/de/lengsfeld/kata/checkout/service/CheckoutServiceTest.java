@@ -4,13 +4,16 @@ import de.lengsfeld.kata.checkout.model.Item;
 import de.lengsfeld.kata.checkout.model.Purchase;
 import de.lengsfeld.kata.checkout.model.PurchaseLine;
 import de.lengsfeld.kata.checkout.model.SpecialDeal;
+import de.lengsfeld.kata.checkout.repository.PurchaseLineRepository;
+import de.lengsfeld.kata.checkout.repository.PurchaseRepository;
 import de.lengsfeld.kata.checkout.repository.SpecialDealRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
 public class CheckoutServiceTest {
 
     private static final String SKU_SPECIALS = "1SKU";
@@ -36,6 +39,12 @@ public class CheckoutServiceTest {
     @Mock
     private SpecialDealRepository specialDealRepository;
 
+    @Mock
+    private PurchaseLineRepository purchaseLineRepository;
+
+    @Mock
+    private PurchaseRepository purchaseRepository;
+
     private SpecialDeal specialDeal;
 
     private Item item;
@@ -49,6 +58,10 @@ public class CheckoutServiceTest {
         specialDeal = new SpecialDeal(itemWithSpecialDeal, QUANTITY_REQUIRED, SPECIAL_PRICE);
         when(specialDealRepository.findSpecialDealByItem(item)).thenReturn(null);
         when(specialDealRepository.findSpecialDealByItem(itemWithSpecialDeal)).thenReturn(specialDeal);
+        PurchaseLine purchaseLine = new PurchaseLine();
+        when(purchaseLineRepository.save(ArgumentMatchers.any(PurchaseLine.class))).thenReturn(purchaseLine);
+        Purchase purchase = new Purchase();
+        when(purchaseRepository.save(ArgumentMatchers.any(Purchase.class))).thenReturn(purchase);
     }
 
 
@@ -73,30 +86,21 @@ public class CheckoutServiceTest {
         assertTrue(success);
     }
 
-    private boolean testPurchaseCompleted(int NUMBER_ITEMS_SPECIAL_DEAL,
-                                          int NUMBER_ITEMS_STANDARD) {
+    private boolean testPurchaseCompleted(int NUMBER_ITEMS_SPECIAL_DEAL, int NUMBER_ITEMS_STANDARD) {
         scanSomeItems(NUMBER_ITEMS_SPECIAL_DEAL, NUMBER_ITEMS_STANDARD);
         Purchase purchase = checkoutService.purchaseCompleted();
-        //assertEquals(NUMBER_DISTICT_ITEMS, purchase.getPurchaseLines().size());
 
         List<PurchaseLine> purchaseLines = purchase.getPurchaseLines();
         System.out.println(purchaseLines.size());
-        int totalNumberOfItems = 0;
-        int numberOfItemsWithSpecialDeal = 0;
         int numberOfItemsStandard = 0;
         BigDecimal totalCheckoutAmount = BigDecimal.ZERO;
         for (PurchaseLine purchaseLine : purchaseLines) {
             if (purchaseLine.getItem().equals(item)) {
                 numberOfItemsStandard += purchaseLine.getQuantity();
             }
-            if (purchaseLine.getItem().equals(itemWithSpecialDeal)) {
-                numberOfItemsWithSpecialDeal += purchaseLine.getQuantity();
-            }
-
             totalCheckoutAmount = totalCheckoutAmount.add(purchaseLine.getApplicablePrice()
                     .multiply(BigDecimal.valueOf(purchaseLine.getQuantity())));
         }
-
         assertEquals(NUMBER_ITEMS_STANDARD, numberOfItemsStandard);
         return true;
     }

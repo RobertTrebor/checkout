@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import java.util.Map;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringRunner.class)
 public class CheckoutControllerTest {
 
     private static final String SKU_SPECIALS = "1SKU";
@@ -104,7 +104,6 @@ public class CheckoutControllerTest {
 
     @Test
     public void purchaseCompleted_NoDiscountsApplied() {
-        //when(specialDealsProducer.getSpecialDeal(itemWithSpecialDeal)).thenReturn(null);
         int NUMBER_ITEMS_SPECIAL_DEAL = 0;
         int NUMBER_ITEMS_STANDARD = 6;
         int NUMBER_DISTICT_ITEMS = 1;
